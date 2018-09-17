@@ -11,6 +11,8 @@ export default class App extends React.Component {
         this.state = {
             minutesOfWorkLeft: minutesOfWorkLeft,
             secondsOfWorkLeft: '00',
+            secondsOfShortBreakTime: '5',
+            secondsOfLongBreakTime: '15',
             minutesOfShortBreakTime: '5',
             minutesOfLongBreakTime: '15',
             minutesOfPlanningTime: '2',
@@ -66,33 +68,57 @@ export default class App extends React.Component {
         clearInterval(this.state.timerId);
     }
 
-    decrementWorkMinutes() {
-        const secondsLeft = Number(this.state.secondsOfWorkLeft) - 1;
-        const minutesLeft = Number(this.state.minutesOfWorkLeft);
+    decrementMinutes(seconds, minutes) {
+        const secondsLeft = Number(this.state[seconds]) - 1;
+        const minutesLeft = Number(this.state[minutes]) - 1;
 
-        if ((secondsLeft) <= 0) {
-            this.setState({
-                minutesOfWorkLeft: minutesLeft - 1,
-            });
+        if (secondsLeft <= 0) {
+            let minutesState = {};
+
+            minutesState[minutes] = minutesLeft;
+
+            this.setState(minutesState);
         }
     }
 
-    decrementWorkSeconds() {
-        const secondsLeft = Number(this.state.secondsOfWorkLeft) - 1;
+    decrementSeconds(seconds) {
+        const secondsLeft = Number(this.state[seconds]) - 1;
+
+        let secondsState = {};
 
         if (secondsLeft <= 0) {
-            this.setState({
-                secondsOfWorkLeft: '59'
-            });
+            secondsState[seconds] = '59';
         } else if (secondsLeft < 10) {
-            this.setState({
-                secondsOfWorkLeft: '0' + String(secondsLeft),
-            })
+            secondsState[seconds] = '0' + String(secondsLeft);
         } else {
-            this.setState({
-                secondsOfWorkLeft: String(secondsLeft),
-            });
+            secondsState[seconds] = String(secondsLeft);
         }
+
+        this.setState(secondsState);
+    }
+
+    decrementWorkMinutes() {
+        this.decrementMinutes('secondsOfWorkLeft', 'minutesOfWorkLeft');
+    }
+
+    decrementWorkSeconds() {
+        this.decrementSeconds('secondsOfWorkLeft');
+    }
+
+    decrementLongBreakMinues() {
+        this.decrementMinutes('secondsOfLongBreakTime', 'minutesOfLongBreakTime');
+    }
+
+    decrementLongBreakSeconds() {
+        this.decrementSeconds('secondsOfLongBreakTime');
+    }
+
+    decrementShortBreakMinues() {
+        this.decrementMinutes('secondsOfShortBreakTime', 'minutesOfShortBreakTime');
+    }
+
+    decrementShortBreakSeconds() {
+        this.decrementSeconds('secondsOfShortBreakTime');
     }
 
     startWork() {
