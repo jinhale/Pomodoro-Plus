@@ -30,9 +30,8 @@ export const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: 'center',
     },
-    button: {
+    buttonContainer: {
         marginTop: 10,
-        fontSize: 22,
     }
 });
 

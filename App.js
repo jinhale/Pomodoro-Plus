@@ -18,11 +18,12 @@ export default class App extends React.Component {
             shortBreaksLeft: shortBreaksLeft,
             shortWorkDescription: 'Work!',
             timerId: 0,
+            isWorking: false,
         }
     }
 
     componentDidMount() {
-        
+
     }
 
     hasRemainingTime() {
@@ -95,6 +96,10 @@ export default class App extends React.Component {
     }
 
     startWork() {
+        if (this.state.isWorking) {
+            return;
+        }
+
         const id  = setInterval(() => {
             this.decrementWorkSeconds();
             this.decrementWorkMinutes();
@@ -102,6 +107,7 @@ export default class App extends React.Component {
 
         this.setState({
             timerId: id,
+            isWorking: true,
         });
     }
 
@@ -110,7 +116,8 @@ export default class App extends React.Component {
 
         this.setState({
             minutesOfWorkLeft: minutesOfWorkLeft,
-            secondsOfWorkLeft: secondsOfWorkLeft,
+            secondsOfWorkLeft: '59',
+            isWorking: false,
         });
     }
 
@@ -136,17 +143,22 @@ export default class App extends React.Component {
                     style={[styles.text, styles.narrowSettings, ]}
                     value={this.state.minutesOfReviewTime} />
 
-                <Button
-                    style={[styles.button, ]}
-                    onPress={this.startWork.bind(this)}
-                    title={this.state.shortWorkDescription}
-                    accessibilityLabel="Press to start work timer."/>
+                <View style={[styles.buttonContainer, ]}>
+                    <Button
+                        disabled={this.state.isWorking}
+                        onPress={this.startWork.bind(this)}
+                        title={this.state.shortWorkDescription}
+                        accessibilityLabel="Press to start work timer."/>
+                </View>
 
-                <Button
-                    style={[styles.button, ]}
-                    onPress={this.cancelWork.bind(this)}
-                    title='Calcel'
-                    accessibilityLabel="Press to cancel timer."/>
+                <View style={[styles.buttonContainer, ]}>
+                    <Button
+                        disabled={!this.state.isWorking}
+                        style={{width: '100%', }}
+                        onPress={this.cancelWork.bind(this)}
+                        title='Cancel'
+                        accessibilityLabel="Press to cancel timer."/>
+                </View>
             </View>
         );
     }
