@@ -67,10 +67,10 @@ export default class App extends React.Component {
     }
 
     decrementWorkMinutes() {
-        const secondsLeft = Number(this.state.secondsOfWorkLeft);
+        const secondsLeft = Number(this.state.secondsOfWorkLeft) - 1;
         const minutesLeft = Number(this.state.minutesOfWorkLeft);
 
-        if ((secondsLeft - 1 ) <= 0) {
+        if ((secondsLeft) <= 0) {
             this.setState({
                 minutesOfWorkLeft: minutesLeft - 1,
             });
@@ -101,8 +101,8 @@ export default class App extends React.Component {
         }
 
         const id  = setInterval(() => {
-            this.decrementWorkSeconds();
             this.decrementWorkMinutes();
+            this.decrementWorkSeconds();
         }, 1000);
 
         this.setState({
