@@ -116,7 +116,7 @@ export default class App extends React.Component {
 
         this.setState({
             minutesOfWorkLeft: minutesOfWorkLeft,
-            secondsOfWorkLeft: '59',
+            secondsOfWorkLeft: '00',
             isWorking: false,
         });
     }
