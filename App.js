@@ -2,7 +2,13 @@ import React from 'react';
 import { TextInput, Text, View, Button } from 'react-native';
 
 import { styles, theme } from './Styles.js';
-import { minutesOfWorkLeft, shortBreaksLeft, shortBreakMinutesLeft, } from './AppStatus.js';
+import { minutesOfWorkLeft,
+         shortBreaksLeft,
+         shortBreakMinutesLeft,
+         longBreakMinutesLeft,
+} from './AppStatus.js';
+
+const interval = __DEV__ ? 10 : 1000;
 
 export default class App extends React.Component {
     constructor(props) {
@@ -24,15 +30,18 @@ export default class App extends React.Component {
         }
     }
 
-    componentDidMount() {
+    resetAllTimers() {
+        clearInterval(this.state.timerId);
 
-    }
-
-    hasRemainingTime() {
-        const minutes = this.state.minutesOfWorkLeft;
-        const seconds = this.state.secondsOfWorkLeft;
-
-        return Number(minutes) >= 0 || Number(seconds) >= 0;
+        this.setState({
+            minutesOfShortBreakTime: shortBreakMinutesLeft,
+            secondsOfShortBreakTime: '00',
+            minutesOfLongBreakTime: longBreakMinutesLeft,
+            secondsOfLongBreakTime: '00',
+            minutesOfWorkLeft: minutesOfWorkLeft,
+            secondsOfWorkLeft: '00',
+            isWorking: false,
+        });
     }
 
     startLongBreak() {
@@ -75,7 +84,7 @@ export default class App extends React.Component {
         if (secondsLeft <= 0) {
             let minutesState = {};
 
-            minutesState[minutes] = minutesLeft;
+            minutesState[minutes] = String(minutesLeft);
 
             this.setState(minutesState);
         }
@@ -98,6 +107,12 @@ export default class App extends React.Component {
     }
 
     decrementWorkMinutes() {
+        if (Number(this.state.minutesOfWorkLeft) < 0) {
+            this.resetAllTimers();
+
+            return;
+        }
+
         this.decrementMinutes('secondsOfWorkLeft', 'minutesOfWorkLeft');
     }
 
@@ -129,7 +144,7 @@ export default class App extends React.Component {
         const id  = setInterval(() => {
             this.decrementWorkMinutes();
             this.decrementWorkSeconds();
-        }, 1000);
+        }, interval);
 
         this.setState({
             timerId: id,
@@ -137,14 +152,58 @@ export default class App extends React.Component {
         });
     }
 
-    cancelWork() {
-        clearInterval(this.state.timerId);
+    decrementShortBreak() {
+        if (Number(this.state.minutesOfShortBreakTime) < 0) {
+            this.resetAllTimers();
+
+            return;
+        }
+
+        this.decrementShortBreakMinues();
+        this.decrementShortBreakSeconds();
+    }
+
+    decrementLongBreak() {
+        if (Number(this.state.minutesOfLongBreakTime) < 0) {
+            this.resetAllTimers();
+
+            return;
+        }
+
+        this.decrementLongBreakMinues();
+        this.decrementLongBreakSeconds();
+    }
+
+    startBreak() {
+        if (!this.state.isWorking) {
+            return;
+        }
+
+        let decrementer = null;
+
+        if (this.state.shortBreaksLeft > 0) {
+            decrementer = this.decrementShortBreak.bind(this);
+        } else {
+            decrementer = this.decrementLongBreak.bind(this);
+        }
+
+        const id = setInterval(() => {
+            decrementer();
+        }, interval);
+
+        if (this.state.timerId) {
+            clearInterval(this.state.timerId);
+        }
 
         this.setState({
-            minutesOfWorkLeft: minutesOfWorkLeft,
-            secondsOfWorkLeft: '00',
             isWorking: false,
+            timerId: id,
         });
+    }
+
+    skipWork() {
+        this.resetAllTimers();
+        this.startBreak();
     }
 
     render() {
@@ -181,10 +240,20 @@ export default class App extends React.Component {
                     <Button
                         disabled={!this.state.isWorking}
                         style={{width: '100%', }}
-                        onPress={this.cancelWork.bind(this)}
+                        onPress={this.resetAllTimers.bind(this)}
                         title='Cancel'
                         accessibilityLabel="Press to cancel timer."/>
                 </View>
+
+                <View style={[styles.buttonContainer, ]}>
+                    <Button
+                        disabled={!this.state.isWorking}
+                        style={{width: '100%', }}
+                        onPress={this.skipWork.bind(this)}
+                        title='Skip'
+                        accessibilityLabel="Press to skip timer."/>
+                </View>
+
             </View>
         );
     }
