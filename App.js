@@ -2,7 +2,7 @@ import React from 'react';
 import { TextInput, Text, View, Button } from 'react-native';
 
 import { styles, theme } from './Styles.js';
-import { minutesOfWorkLeft, shortBreaksLeft } from './AppStatus.js';
+import { minutesOfWorkLeft, shortBreaksLeft, shortBreakMinutesLeft, } from './AppStatus.js';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -11,8 +11,8 @@ export default class App extends React.Component {
         this.state = {
             minutesOfWorkLeft: minutesOfWorkLeft,
             secondsOfWorkLeft: '00',
-            secondsOfShortBreakTime: '5',
-            secondsOfLongBreakTime: '15',
+            secondsOfShortBreakTime: shortBreakMinutesLeft,
+            secondsOfLongBreakTime: longBreakMinutesLeft,
             minutesOfShortBreakTime: '5',
             minutesOfLongBreakTime: '15',
             minutesOfPlanningTime: '2',
